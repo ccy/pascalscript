@@ -11563,32 +11563,26 @@ begin
   s := '';
 end;
 
-{$ifdef CPUX64}
-
-{$DEFINE empty_methods_handler}
-{$ENDIF}
-
-{$ifdef fpc}
-  {$if defined(cpupowerpc) or defined(cpuarm) or defined(cpu64)}
-    {$define empty_methods_handler}
-  {$ifend}
-{$endif}
-
-{$ifdef empty_methods_handler}
-procedure MyAllMethodsHandler;
-begin
-end;
-{$else}
-
-
 function MyAllMethodsHandler2(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer): Integer; forward;
 
-procedure MyAllMethodsHandler;
+procedure MyAllMethodsHandler; assembler;
+asm
+{$ifdef CPUX64}
+  push rbp
+  sub rsp, $50
+  mov rbp, rsp
+  mov rcx, rcx    // Param1: Self
+  mov r8, rdx     // param3: _RDX
+//  mov rdx, rdx    // Param2: Stack
+//  mov r9, r9     // Param4: _RCX
+  call MyAllMethodsHandler2
+  lea rsp, [rbp+$50]
+  pop rbp
+{$else}
 //  On entry:
 //     EAX = Self pointer
 //     EDX, ECX = param1 and param2
 //     STACK = param3... paramcount
-asm
   push 0
   push ecx
   push edx
@@ -11601,6 +11595,7 @@ asm
   add esp, eax
   mov [esp], edx
   mov eax, ecx
+{$endif}
 end;
 
 function ResultAsRegister(b: TPSTypeRec): Boolean;
@@ -11888,7 +11883,7 @@ begin
       raise EPSException.Create(PSErrorToString(Self.SE.ExceptionCode, Self.Se.ExceptionString), Self.Se, Self.Se.ExProc, Self.Se.ExPos);
   end;
 end;
-{$endif}
+
 function TPSRuntimeClassImporter.FindClass(const Name: tbtString): TPSRuntimeClass;
 var
   h, i: Longint;
