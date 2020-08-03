@@ -11,7 +11,7 @@ interface
 uses
   {$IFNDEF FPC} {$IFDEF DELPHI2010UP} System.Rtti,{$ENDIF} {$ENDIF}
   {$IFDEF FPC}{$IFDEF USEINVOKECALL}Rtti,{$ENDIF}{$ENDIF}
-  SysUtils, uPSUtils{$IFDEF DELPHI6UP}, variants{$ENDIF}
+  SysUtils, uPSUtils{$IFDEF DELPHI6UP}, variants, FmtBcd{$ENDIF}
   {$IFNDEF PS_NOIDISPATCH}{$IFDEF DELPHI3UP}, ActiveX, Windows{$ELSE}, Ole2{$ENDIF}{$ENDIF};
 
 
@@ -13162,7 +13162,7 @@ begin
     try
       for i := 0 to High(Par)  do
       begin
-        if PVarData(@Par[High(Par)-i]).VType = varString then
+        if (PVarData(@Par[High(Par)-i]).VType = varString) or (PVarData(@Par[High(Par)-i]).VType = varFmtBcd) then
         begin
           DispParam.rgvarg[i].vt := VT_BSTR;
           DispParam.rgvarg[i].bstrVal := StringToOleStr(AnsiString(Par[High(Par)-i]));
