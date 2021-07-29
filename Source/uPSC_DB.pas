@@ -1,4 +1,4 @@
-{ uPSC_DB.pas } // version: 2020.1010.1010
+{ uPSC_DB.pas } // version: 2021.0729.1130
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {----------------------------------------------------------------------------}
@@ -784,137 +784,151 @@ With RegClassS(cl,'TOwnedCollection','TDefCollection') do
 end;
 
 procedure SIRegisterTNAMEDITEM(CL: TPSPascalCompiler);
-Begin
-With RegClassS(cl,'TCollectionItem','TNamedItem') do
-  begin
-  RegisterProperty('Name', 'string', iptrw);
+begin
+  with RegClassS(cl,'TCollectionItem','TNamedItem') do begin
+    RegisterProperty('Name', 'string', iptrw);
   end;
 end;
 
 procedure SIRegister_DB(Cl: TPSPascalCompiler);
 Begin
-cl.AddTypeS('TFieldType', '(ftUnknown, ftString, ftSmallint, ftInteger, ftWord, ftBoolean, ftFloat, ftCurrency, ftBCD, ftDate, ftTime, ftDateTime,'+
-    'ftBytes, ftVarBytes, ftAutoInc, ftBlob, ftMemo, ftGraphic, ftFmtMemo, ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftFixedChar, ftWideString,'+
-    'ftLargeint, ftADT, ftArray, ftReference, ftDataSet, ftOraBlob, ftOraClob, ftVariant, ftInterface, ftIDispatch, ftGuid, ftTimeStamp, ftFMTBcd)');
+  {+}
+  cl.AddTypeS('TFieldType', '('
+    + ' ftUnknown, ftString, ftSmallint, ftInteger, ftWord' // 0..4
+    + ',ftBoolean, ftFloat, ftCurrency, ftBCD, ftDate, ftTime, ftDateTime' // 5..11
+    + ',ftBytes, ftVarBytes, ftAutoInc, ftBlob, ftMemo, ftGraphic, ftFmtMemo' // 12..18
+    + ',ftParadoxOle, ftDBaseOle, ftTypedBinary, ftCursor, ftFixedChar, ftWideString' // 19..24
+    + ',ftLargeint, ftADT, ftArray, ftReference, ftDataSet, ftOraBlob, ftOraClob' // 25..31
+    + ',ftVariant, ftInterface, ftIDispatch, ftGuid, ftTimeStamp, ftFMTBcd' // 32..37
+    {$IFDEF DELPHI11UP} // TODO: FPC check
+    +',ftFixedWideChar, ftWideMemo, ftOraTimeStamp, ftOraInterval'
+    {$ENDIF}
+    {$IFDEF UNICODE} // TODO: FPC check
+    +',ftLongWord, ftShortint, ftByte, ftExtended, ftConnection, ftParams, ftStream'
+    +',ftTimeStampOffset, ftObject, ftSingle'
+    {$ENDIF}
+    +' )'
+  );
+  {+.}
 
   CL.AddTypeS('TDataSetState', '(dsInactive, dsBrowse, dsEdit, dsInsert, dsSetKey, dsCalcFields, dsFilter, dsNewValue, dsOldValue, dsCurValue, dsBlockRead, dsInternalCalc, dsOpening)');
 
-cl.addTypeS('TLocateOption','(loCaseInsensitive, loPartialKey)');
-cl.addtypes('TLocateOptions','set of TLocateOption');
-cl.addtypes('TUpdateStatus','(usUnmodified, usModified, usInserted, usDeleted)');
-cl.addtypes('TUpdateStatusSet', 'set of TUpdateStatus');
+  cl.addTypeS('TLocateOption','(loCaseInsensitive, loPartialKey)');
+  cl.addtypes('TLocateOptions','set of TLocateOption');
+  cl.addtypes('TUpdateStatus','(usUnmodified, usModified, usInserted, usDeleted)');
+  cl.addtypes('TUpdateStatusSet', 'set of TUpdateStatus');
 
-    cl.addTypeS('TParamType', 'Byte');
-RegClassS(cl,'TComponent','TDataSet');
-RegClassS(cl,'TComponent','TField');
-RegClassS(cl,'TComponent','TFieldDefs');
-RegClassS(cl,'TComponent','TIndexDefs');
-RegClassS(cl, 'TComponent', 'TObjectField');
-RegClassS(cl, 'TComponent', 'TDataLink');
-RegClassS(cl, 'TComponent', 'TDataSource');
-RegClassS(cl, 'TComponent', 'TParam');
+  cl.addTypeS('TParamType', 'Byte');
+  RegClassS(cl,'TComponent','TDataSet');
+  RegClassS(cl,'TComponent','TField');
+  RegClassS(cl,'TComponent','TFieldDefs');
+  RegClassS(cl,'TComponent','TIndexDefs');
+  RegClassS(cl, 'TComponent', 'TObjectField');
+  RegClassS(cl, 'TComponent', 'TDataLink');
+  RegClassS(cl, 'TComponent', 'TDataSource');
+  RegClassS(cl, 'TComponent', 'TParam');
 
-SIRegisterTNAMEDITEM(Cl);
-Cl.addTypeS('TDefUpdateMethod', 'procedure');
-SIRegisterTDEFCOLLECTION(Cl);
-cl.AddConstantN('faHiddenCol','LongInt').Value.tu32 := 1;
-cl.AddConstantN('faReadOnly','LongInt').Value.tu32 := 2;
-cl.AddConstantN('faRequired','LongInt').Value.tu32 := 4;
-cl.AddConstantN('faLink','LongInt').Value.tu32 := 8;
-cl.AddConstantN('faUnNamed','LongInt').Value.tu32 := 16;
-cl.AddConstantN('faFixed','LongInt').Value.tu32 := 32;
-cl.addTypeS('TFieldAttributes', 'Byte');
-SIRegisterTFIELDDEF(Cl);
-SIRegisterTFIELDDEFS(Cl);
-cl.AddConstantN('ixPrimary','LongInt').Value.tu32 := 1;
-cl.AddConstantN('ixUnique','LongInt').Value.tu32 := 2;
-cl.AddConstantN('ixDescending','LongInt').Value.tu32 := 4;
-cl.AddConstantN('ixCaseInsensitive','LongInt').Value.tu32 := 8;
-cl.AddConstantN('ixExpression','LongInt').Value.tu32 := 16;
-cl.AddConstantN('ixNonMaintained','LongInt').Value.tu32 := 32;
-cl.addTypeS('TIndexOptions', 'Byte');
-SIRegisterTINDEXDEF(Cl);
-SIRegisterTINDEXDEFS(Cl);
-SIRegisterTFLATLIST(Cl);
-SIRegisterTFIELDDEFLIST(Cl);
-SIRegisterTFIELDLIST(Cl);
-cl.AddConstantN('fkData','LongInt').Value.tu32 := 1;
-cl.AddConstantN('fkCalculated','LongInt').Value.tu32 := 2;
-cl.AddConstantN('fkLookup','LongInt').Value.tu32 := 4;
-cl.AddConstantN('fkInternalCalc','LongInt').Value.tu32 := 8;
-cl.AddConstantN('fkAggregate','LongInt').Value.tu32 := 16;
-cl.addTypeS('TFieldKinds', 'Byte');
-SIRegisterTFIELDS(Cl);
-cl.AddConstantN('pfInUpdate','LongInt').Value.tu32 := 1;
-cl.AddConstantN('pfInWhere','LongInt').Value.tu32 := 2;
-cl.AddConstantN('pfInKey','LongInt').Value.tu32 := 4;
-cl.AddConstantN('pfHidden','LongInt').Value.tu32 :=8;
-cl.addTypeS('TProviderFlags', 'Byte');
-cl.addTypeS('TFieldNotifyEvent', 'procedure (Sender: TField)');
-cl.addTypeS('TFieldGetTextEvent', 'procedure (Sender: TField; var Text: string; DisplayText: Boolean)');
+  SIRegisterTNAMEDITEM(Cl);
+  Cl.addTypeS('TDefUpdateMethod', 'procedure');
+  SIRegisterTDEFCOLLECTION(Cl);
+  cl.AddConstantN('faHiddenCol','LongInt').Value.tu32 := 1;
+  cl.AddConstantN('faReadOnly','LongInt').Value.tu32 := 2;
+  cl.AddConstantN('faRequired','LongInt').Value.tu32 := 4;
+  cl.AddConstantN('faLink','LongInt').Value.tu32 := 8;
+  cl.AddConstantN('faUnNamed','LongInt').Value.tu32 := 16;
+  cl.AddConstantN('faFixed','LongInt').Value.tu32 := 32;
+  cl.addTypeS('TFieldAttributes', 'Byte');
+  SIRegisterTFIELDDEF(Cl);
+  SIRegisterTFIELDDEFS(Cl);
+  cl.AddConstantN('ixPrimary','LongInt').Value.tu32 := 1;
+  cl.AddConstantN('ixUnique','LongInt').Value.tu32 := 2;
+  cl.AddConstantN('ixDescending','LongInt').Value.tu32 := 4;
+  cl.AddConstantN('ixCaseInsensitive','LongInt').Value.tu32 := 8;
+  cl.AddConstantN('ixExpression','LongInt').Value.tu32 := 16;
+  cl.AddConstantN('ixNonMaintained','LongInt').Value.tu32 := 32;
+  cl.addTypeS('TIndexOptions', 'Byte');
+  SIRegisterTINDEXDEF(Cl);
+  SIRegisterTINDEXDEFS(Cl);
+  SIRegisterTFLATLIST(Cl);
+  SIRegisterTFIELDDEFLIST(Cl);
+  SIRegisterTFIELDLIST(Cl);
+  cl.AddConstantN('fkData','LongInt').Value.tu32 := 1;
+  cl.AddConstantN('fkCalculated','LongInt').Value.tu32 := 2;
+  cl.AddConstantN('fkLookup','LongInt').Value.tu32 := 4;
+  cl.AddConstantN('fkInternalCalc','LongInt').Value.tu32 := 8;
+  cl.AddConstantN('fkAggregate','LongInt').Value.tu32 := 16;
+  cl.addTypeS('TFieldKinds', 'Byte');
+  SIRegisterTFIELDS(Cl);
+  cl.AddConstantN('pfInUpdate','LongInt').Value.tu32 := 1;
+  cl.AddConstantN('pfInWhere','LongInt').Value.tu32 := 2;
+  cl.AddConstantN('pfInKey','LongInt').Value.tu32 := 4;
+  cl.AddConstantN('pfHidden','LongInt').Value.tu32 :=8;
+  cl.addTypeS('TProviderFlags', 'Byte');
+  cl.addTypeS('TFieldNotifyEvent', 'procedure (Sender: TField)');
+  cl.addTypeS('TFieldGetTextEvent', 'procedure (Sender: TField; var Text: string; DisplayText: Boolean)');
 
-cl.addTypeS('TFieldSetTextEvent', 'procedure (Sender: TField; const Text: string)');
+  cl.addTypeS('TFieldSetTextEvent', 'procedure (Sender: TField; const Text: string)');
 
-cl.addTypeS('TAutoRefreshFlag', '(arNone, arAutoInc, arDefault)');
-SIRegisterTLOOKUPLIST(Cl);
-SIRegisterTFIELD(Cl);
-SIRegisterTSTRINGFIELD(Cl);
-SIRegisterTWIDESTRINGFIELD(Cl);
-SIRegisterTNUMERICFIELD(Cl);
-SIRegisterTINTEGERFIELD(Cl);
-SIRegisterTSMALLINTFIELD(Cl);
-cl.addTypeS('LargeInt', 'Int64');
-SIRegisterTLARGEINTFIELD(Cl);
-SIRegisterTWORDFIELD(Cl);
-SIRegisterTAUTOINCFIELD(Cl);
-SIRegisterTFLOATFIELD(Cl);
-SIRegisterTCURRENCYFIELD(Cl);
-SIRegisterTBOOLEANFIELD(Cl);
-SIRegisterTDATETIMEFIELD(Cl);
-SIRegisterTDATEFIELD(Cl);
-SIRegisterTTIMEFIELD(Cl);
-SIRegisterTBINARYFIELD(Cl);
-SIRegisterTBYTESFIELD(Cl);
-SIRegisterTVARBYTESFIELD(Cl);
-SIRegisterTBCDFIELD(Cl);
-{$IFDEF DELPHI6UP}
-SIRegisterTFMTBCDFIELD(Cl);
-{$ENDIF}
-cl.addTypeS('TBlobType', 'Byte');
-SIRegisterTBLOBFIELD(Cl);
-SIRegisterTMEMOFIELD(Cl);
-SIRegisterTGRAPHICFIELD(Cl);
-SIRegisterTOBJECTFIELD(Cl);
-SIRegisterTADTFIELD(Cl);
-SIRegisterTARRAYFIELD(Cl);
-SIRegisterTDATASETFIELD(Cl);
-SIRegisterTREFERENCEFIELD(Cl);
-SIRegisterTVARIANTFIELD(Cl);
-SIRegisterTGUIDFIELD(Cl);
-{+}
-{$IFNDEF NEXTGEN}
-cl.addTypeS('TBlobData', 'AnsiString');
-{$ELSE}
-cl.addTypeS('TBlobData', 'TBytes');
-{$ENDIF}
-{+.}
-cl.AddConstantN('ptUnknown','LongInt').Value.tu32 := 1;
-cl.AddConstantN('ptInput','LongInt').Value.tu32 := 2;
-cl.AddConstantN('ptOutput','LongInt').Value.tu32 := 4;
-cl.AddConstantN('ptInputOutput','LongInt').Value.tu32 := 8;
-cl.AddConstantN('ptResult','LongInt').Value.tu32 := 16;
-RegClassS(cl,'TObject','TParams');
-SIRegisterTPARAM(Cl);
-SIRegisterTPARAMS(Cl);
-cl.addTypeS('TDataAction', '(daFail, daAbort, daRetry)');
-cl.addTypeS('TBlobStreamMode', '(bmRead, bmWrite, bmReadWrite)');
-cl.addTypeS('TDataOperation', 'procedure');
-cl.addTypeS('TDataSetNotifyEvent', 'procedure (Dataset: TDataSet)');
-cl.addTypeS('TDataSetErrorEvent', 'procedure (Dataset: TDataSet; E: TObject; var Action: TDataAction)');
+  cl.addTypeS('TAutoRefreshFlag', '(arNone, arAutoInc, arDefault)');
+  SIRegisterTLOOKUPLIST(Cl);
+  SIRegisterTFIELD(Cl);
+  SIRegisterTSTRINGFIELD(Cl);
+  SIRegisterTWIDESTRINGFIELD(Cl);
+  SIRegisterTNUMERICFIELD(Cl);
+  SIRegisterTINTEGERFIELD(Cl);
+  SIRegisterTSMALLINTFIELD(Cl);
+  cl.addTypeS('LargeInt', 'Int64');
+  SIRegisterTLARGEINTFIELD(Cl);
+  SIRegisterTWORDFIELD(Cl);
+  SIRegisterTAUTOINCFIELD(Cl);
+  SIRegisterTFLOATFIELD(Cl);
+  SIRegisterTCURRENCYFIELD(Cl);
+  SIRegisterTBOOLEANFIELD(Cl);
+  SIRegisterTDATETIMEFIELD(Cl);
+  SIRegisterTDATEFIELD(Cl);
+  SIRegisterTTIMEFIELD(Cl);
+  SIRegisterTBINARYFIELD(Cl);
+  SIRegisterTBYTESFIELD(Cl);
+  SIRegisterTVARBYTESFIELD(Cl);
+  SIRegisterTBCDFIELD(Cl);
+  {$IFDEF DELPHI6UP}
+  SIRegisterTFMTBCDFIELD(Cl);
+  {$ENDIF}
+  cl.addTypeS('TBlobType', 'Byte');
+  SIRegisterTBLOBFIELD(Cl);
+  SIRegisterTMEMOFIELD(Cl);
+  SIRegisterTGRAPHICFIELD(Cl);
+  SIRegisterTOBJECTFIELD(Cl);
+  SIRegisterTADTFIELD(Cl);
+  SIRegisterTARRAYFIELD(Cl);
+  SIRegisterTDATASETFIELD(Cl);
+  SIRegisterTREFERENCEFIELD(Cl);
+  SIRegisterTVARIANTFIELD(Cl);
+  SIRegisterTGUIDFIELD(Cl);
+  {+}
+  {$IFNDEF NEXTGEN}
+  cl.addTypeS('TBlobData', 'AnsiString');
+  {$ELSE}
+  cl.addTypeS('TBlobData', 'TBytes');
+  {$ENDIF}
+  {+.}
+  cl.AddConstantN('ptUnknown','LongInt').Value.tu32 := 1;
+  cl.AddConstantN('ptInput','LongInt').Value.tu32 := 2;
+  cl.AddConstantN('ptOutput','LongInt').Value.tu32 := 4;
+  cl.AddConstantN('ptInputOutput','LongInt').Value.tu32 := 8;
+  cl.AddConstantN('ptResult','LongInt').Value.tu32 := 16;
+  RegClassS(cl,'TObject','TParams');
+  SIRegisterTPARAM(Cl);
+  SIRegisterTPARAMS(Cl);
+  cl.addTypeS('TDataAction', '(daFail, daAbort, daRetry)');
+  cl.addTypeS('TBlobStreamMode', '(bmRead, bmWrite, bmReadWrite)');
+  cl.addTypeS('TDataOperation', 'procedure');
+  cl.addTypeS('TDataSetNotifyEvent', 'procedure (Dataset: TDataSet)');
+  cl.addTypeS('TDataSetErrorEvent', 'procedure (Dataset: TDataSet; E: TObject; var Action: TDataAction)');
 
-cl.addTypeS('TFilterRecordEvent', 'procedure (Dataset: TDataSet; var Accept: Boolean)');
+  cl.addTypeS('TFilterRecordEvent', 'procedure (Dataset: TDataSet; var Accept: Boolean)');
 
-SIRegisterTDATASET(Cl);
+  SIRegisterTDATASET(Cl);
 end;
 
 {$IFDEF USEIMPORTER}
