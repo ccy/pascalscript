@@ -1,4 +1,4 @@
-{ uPSC_stdctrls.pas } // version: 2020.1010.1010
+{ uPSC_stdctrls.pas } // version: 2021.0901.0820
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {----------------------------------------------------------------------------}
@@ -55,6 +55,9 @@ begin
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -101,6 +104,9 @@ begin
   begin
     RegisterProperty('Alignment', 'TAlignment', iptrw);
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
     RegisterProperty('AutoSize', 'Boolean', iptrw);
@@ -157,6 +163,9 @@ begin
   with Cl.AddClassN(cl.FindClass('TCustomEdit'), 'TEdit') do
   begin
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
     RegisterProperty('AutoSelect', 'Boolean', iptrw);
@@ -218,6 +227,9 @@ begin
     RegisterProperty('Lines', 'TStrings', iptrw);
     {$ENDIF}
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
     RegisterProperty('Alignment', 'TAlignment', iptrw);
@@ -288,6 +300,9 @@ begin
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('DropDownCount', 'Integer', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -338,6 +353,9 @@ begin
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
     RegisterProperty('Cancel', 'Boolean', iptrw);
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Default', 'Boolean', iptrw);
@@ -383,6 +401,9 @@ begin
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Checked', 'Boolean', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
@@ -421,6 +442,9 @@ begin
   begin
     RegisterProperty('Alignment', 'TAlignment', iptrw);
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
@@ -481,6 +505,9 @@ begin
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -527,6 +554,9 @@ begin
   with Cl.AddClassN(cl.FindClass('TWinControl'), 'TScrollBar') do
   begin
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
     RegisterProperty('Kind', 'TScrollBarKind', iptrw);

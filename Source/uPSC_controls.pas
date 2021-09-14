@@ -1,4 +1,4 @@
-{ uPSC_controls.pas } // version: 2020.1010.1010
+{ uPSC_controls.pas } // version: 2021.0901.0820
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {----------------------------------------------------------------------------}
@@ -158,6 +158,10 @@ begin
   cl.addTypeS('TAlign', '(alNone, alTop, alBottom, alLeft, alRight, alClient)');
 
   {$IFDEF DELPHI4UP}
+  cl.addTypeS('TAnchorKind', '(akLeft, akTop, akRight, akBottom)');
+  cl.addTypeS('TAnchors','set of TAnchorKind');
+  {$ENDIF}
+  {$IFDEF FPC}
   cl.addTypeS('TAnchorKind', '(akLeft, akTop, akRight, akBottom)');
   cl.addTypeS('TAnchors','set of TAnchorKind');
   {$ENDIF}

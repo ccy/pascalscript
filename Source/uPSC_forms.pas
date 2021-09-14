@@ -1,4 +1,4 @@
-{ uPSC_forms.pas } // version: 2020.1010.1010
+{ uPSC_forms.pas } // version: 2021.0901.0820
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {----------------------------------------------------------------------------}
@@ -55,6 +55,10 @@ begin
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Constraints', 'TSizeConstraints', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    RegisterProperty('Constraints', 'TSizeConstraints', iptrw);
+    {$ENDIF}
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -101,6 +105,10 @@ begin
     RegisterProperty('Active', 'Boolean', iptr);
     RegisterProperty('ActiveControl', 'TWinControl', iptrw);
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    RegisterProperty('Constraints', 'TSizeConstraints', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Constraints', 'TSizeConstraints', iptrw);
     {$ENDIF}

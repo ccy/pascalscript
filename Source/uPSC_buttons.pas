@@ -1,4 +1,4 @@
-{ uPSC_buttons.pas } // version: 2020.1010.1010
+{ uPSC_buttons.pas } // version: 2021.0901.0820
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {----------------------------------------------------------------------------}
@@ -33,6 +33,9 @@ begin
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
+    {$IFDEF FPC}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
     RegisterProperty('GroupIndex', 'Integer', iptrw);
     RegisterProperty('Down', 'Boolean', iptrw);
     RegisterProperty('Caption', 'string', iptrw);
@@ -57,6 +60,9 @@ begin
   with Cl.AddClassN(cl.FindClass('TButton'), 'TBitBtn') do
   begin
     {$IFDEF DELPHI4UP}
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    {$ENDIF}
+    {$IFDEF FPC}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}
     RegisterProperty('Glyph', 'TBitmap', iptrw);
