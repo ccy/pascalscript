@@ -23,20 +23,14 @@ package ROPS_EXTENDED;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Innerfuse Pascal Script 3 Extensions'}
+{$LIBSUFFIX AUTO}
 {$IMPLICITBUILD ON}
 
 requires
-  JvCoreD5R,
-  JvSystemD5R,
-  JvNetD5R,
-  VCLIB50,
-  PascalScript_Core_D5;
+  PascalScript_Core_D37;
 
 contains
-  uPSI_JvMail in 'uPSI_JvMail.pas',
   uPSI_Registry in 'uPSI_Registry.pas',
-  uPSI_IBX in 'uPSI_IBX.pas',
-  uPS_ExtReg in 'uPS_ExtReg.pas',
   uPSI_Mask in 'uPSI_Mask.pas',
   uPSI_Dialogs in 'uPSI_Dialogs.pas';
 
