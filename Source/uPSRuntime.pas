@@ -1,4 +1,4 @@
-{ uPSRuntime.pas } // version: 2021.0211.1617
+{ uPSRuntime.pas } // version: 2022.0324.1225
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {----------------------------------------------------------------------------}
@@ -12059,7 +12059,9 @@ var
   cp: Pointer;
   i: Longint;
 begin
-  if (Val.aType.BaseType <> btArray) and (val.aType.BaseType <> btStaticArray) then begin
+  if {+}(val = nil) or{+.} (
+    (Val.aType.BaseType <> btArray) and (val.aType.BaseType <> btStaticArray)) then
+  begin
     Result := nil;
     exit;
   end;
@@ -12084,7 +12086,8 @@ begin
   Result.FreeIt := True;
   Result.ElementSize := SizeOf(TVarRec);
   GetMem(Result.Data, Result.ItemCount * Result.ElementSize);
-  P := Result.Data;
+  p := Result.Data;
+  {+}if p = nil then Exit;{+.}
   FillChar(p^, Result^.ItemCount * Result^.ElementSize, 0);
   for i := 0 to Result^.ItemCount-1 do begin
     ctype := Pointer(Pointer(IPointer(datap)+PointerSize)^);
@@ -12199,11 +12202,15 @@ begin
         end;
         {$ENDIF Delphi3UP}
         {$ENDIF !PS_NOINTERFACES}
-      end;
-    end;
+        else begin
+          dbg('WARNING: Internal: CreateOpenArray: Unsupported variant type '+string(inttostr(ctype.BaseType)));
+          //?raise Exception.Create('Internal: CreateOpenArray: Unsupported variant type '+string(inttostr(ctype.BaseType)));
+        end;
+      end; // "case ctype.BaseType"
+    end; // "if cp"
     datap := Pointer(IPointer(datap)+ (3*SizeOf(Pointer)));
     p := PAnsiChar(p) + Result^.ElementSize;
-  end;
+  end; // "for i"
 end; // function CreateOpenArray
 
 procedure DestroyOpenArray(Sender: TPSExec; V: PPSOpenArray);
@@ -12213,8 +12220,10 @@ var
   p: PVarRec;
   i: Longint;
 begin
+  {+}if V = nil then Exit;{+.}
   if v.FreeIt then begin // basetype = btPointer
     p := v^.Data;
+    {+}if p = nil then Exit;{+.}
     if v.OrgVar.aType.BaseType = btStaticArray then
       datap := v.OrgVar.Dta
     else
@@ -12222,6 +12231,7 @@ begin
     for i := 0 to v^.ItemCount-1 do begin
       ctype := Pointer(Pointer(IPointer(datap)+PointerSize)^);
       cp := Pointer(Datap^);
+      {+}if cp <> nil then {+.}
       case ctype.BaseType of
         btU8: begin
           if v^.varParam then
@@ -12254,23 +12264,51 @@ begin
         btSingle: begin
           if v^.VarParam then
             tbtSingle(cp^) := TVarRec(p^).VExtended^;
-          Dispose(TVarRec(p^).vExtended);
+          try
+            Dispose(TVarRec(p^).vExtended);
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Dispose Single(as Extended)');
+              raise;
+            end;
+          end;
         end;
         btDouble: begin
           if v^.VarParam then
             tbtDouble(cp^) := TVarRec(p^).VExtended^;
-          Dispose(TVarRec(p^).VExtended);
+          try
+            Dispose(TVarRec(p^).VExtended);
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Dispose Double(as Extended)');
+              raise;
+            end;
+          end;
         end;
         btExtended: begin
           if v^.VarParam then
             tbtExtended(cp^) := TVarRec(p^).VExtended^;
-          Dispose(TVarRec(p^).VExtended);
+          try
+            Dispose(TVarRec(p^).VExtended);
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Dispose Extended');
+              raise;
+            end;
+          end;
         end;
         {$IFNDEF PS_NOINT64}
         btS64: begin
           if v^.VarParam then
             tbtS64(cp^) := TVarRec(p^).vInt64^;
-          Dispose(TVarRec(p^).VInt64);
+          try
+            Dispose(TVarRec(p^).VInt64);
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Dispose Int64');
+              raise;
+            end;
+          end;
         end;
         {$ENDIF !PS_NOINT64}
         {$IFNDEF PS_NOWIDESTRING}
@@ -12282,7 +12320,14 @@ begin
         btUnicodeString: begin
           if v^.VarParam then
             TbtUnicodeString(cp^) := TbtUnicodeString(TVarRec(p^).VUnicodeString);
-          Finalize(TbtUnicodeString(TVarRec(p^).VUnicodeString));
+          try
+            Finalize(TbtUnicodeString(TVarRec(p^).VUnicodeString));
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Finalize UnicodeString');
+              raise;
+            end;
+          end;
         end;
         {$ELSE !UNICODE}
         btUnicodeString,
@@ -12290,13 +12335,27 @@ begin
         btWideString: begin
           if v^.VarParam then
             tbtWideString(cp^) := tbtWideString(TVarRec(p^).VWideString);
-          Finalize(WideString(TVarRec(p^).VWideString));
+          try
+            Finalize(WideString(TVarRec(p^).VWideString));
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Finalize Unicode/WideString');
+              raise;
+            end;
+          end;
         end;
         {$ENDIF !PS_NOWIDESTRING}
         btString: begin
           if v^.VarParam then
             TbtString(cp^) := TbtString(TVarRec(p^).VString);
-          Finalize(TbtString(TVarRec(p^).VAnsiString));
+          try
+            Finalize(TbtString(TVarRec(p^).VAnsiString));
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Finalize String');
+              raise;
+            end;
+          end;
         end;
         btClass: begin
           if v^.VarParam then
@@ -12305,20 +12364,32 @@ begin
         {$IFNDEF PS_NOINTERFACES}
         {$IFDEF Delphi3UP} // and FPC
         btInterface: begin
-          if v^.VarParam then
-            IUnknown(cp^) := IUnknown(TVarRec(p^).VInterface);
-          Finalize(TbtString(TVarRec(p^).VAnsiString));
+          try
+            if v^.VarParam then
+              IUnknown(cp^) := IUnknown(TVarRec(p^).VInterface);
+            Finalize(TbtString(TVarRec(p^).VAnsiString));
+          except
+            on e: Exception do begin
+              dbg('EXCEPTION: RPS: DestroyOpenArray: Finalize Interface');
+              raise;
+            end;
+          end;
         end;
         {$ENDIF Delphi3UP}
         {$ENDIF !PS_NOINTERFACES}
-      end;
+        else begin
+          dbg('WARNING: Internal: DestroyOpenArray: Unsupported variant type '+string(inttostr(ctype.BaseType)));
+          //?raise Exception.Create('Internal: DestroyOpenArray: Unsupported variant type '+string(inttostr(ctype.BaseType)));
+        end;
+      end; // "case ctype.BaseType"
       {+}
       //datap := Pointer(IPointer(datap)+ (3*SizeOf(Pointer)));
       datap := PointerShift(datap, 3*SizeOf(Pointer));
       //p := Pointer(IPointer(p) + Cardinal(v^.ElementSize));
       p := PointerShift(p, v^.ElementSize);
       {+.}
-    end;
+    end; // "for i"
+    {+}if v.Data <> nil then{+.}
     FreeMem(v.Data, v.ElementSize * v.ItemCount);
   end;
   Dispose(V);
