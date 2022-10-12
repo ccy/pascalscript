@@ -2380,7 +2380,7 @@ begin // function TPSExec.InnerfuseCall
         bts64:
           tbts64(res.dta^) := Int64(_RAX);
         btCurrency:
-          tbtCurrency(res.Dta^) := Int64(_RAX);
+          tbts64(res.Dta^) := Int64(_RAX);
 
         btInterface,
         btVariant,
