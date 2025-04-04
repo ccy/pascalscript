@@ -27,6 +27,7 @@ type
     procedure Test_BadVariableType;
     procedure Test_Event;
     procedure Test_Registry;
+    procedure Test_277;
   end;
 
 implementation
@@ -221,6 +222,21 @@ begin
   CheckEquals(
     GetEnvironmentVariable(ProgramFiles)
   , Execute<string>(Format(Script, [ProgramFiles]))
+  );
+end;
+
+procedure TPascalScriptTests.Test_277;
+begin
+  CheckEquals(
+    'TEST'
+  , Execute<string>('''
+    function Execute: string;
+    var V: Variant;
+    begin
+      V := 'Test';
+      Result := UpperCase(V);
+    end;
+    ''')
   );
 end;
 
