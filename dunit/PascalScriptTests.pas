@@ -26,20 +26,22 @@ type
     procedure Test_CreateOleObject;
     procedure Test_BadVariableType;
     procedure Test_Event;
+    procedure Test_Registry;
   end;
 
 implementation
 
 uses
   Winapi.ActiveX,
-  uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSR_classes, uPSR_comobj;
+  uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSI_Registry, uPSR_classes,
+  uPSR_comobj;
 
 procedure TPascalScriptTests.SetUp;
 begin
   inherited;
   FScripter := TPSScript.Create(nil);
 
-  for var c in [TPSImport_Classes] do
+  for var c in [TPSImport_Classes, TPSImport_Registry] do
     (FScripter.Plugins.Add as TPSPluginItem).Plugin := TPSPluginClass(c).Create(FScripter);
 
   FScripter.OnCompImport := OnCompImport;
@@ -192,6 +194,33 @@ begin
       Result := Result + #13#10 + R;
     end;
     ''')
+  );
+end;
+
+procedure TPascalScriptTests.Test_Registry;
+begin
+  const ProgramFiles = {$ifdef Win32}'ProgramWFiles'{$endif}
+                       {$ifdef Win64}'ProgramW6432Dir'{$endif}
+                       ;
+
+  var Script := '''
+  function Execute: string;
+  var R: TRegistry;
+  begin
+    R := TRegistry.Create;
+    try
+      R.RootKey := HKEY_LOCAL_MACHINE;
+      if R.OpenKey('\SOFTWARE\Microsoft\Windows\CurrentVersion', False) then
+        Result := R.ReadString('%s');
+    finally
+      R.Free;
+    end;
+  end;
+  ''';
+
+  CheckEquals(
+    GetEnvironmentVariable(ProgramFiles)
+  , Execute<string>(Format(Script, [ProgramFiles]))
   );
 end;
 
