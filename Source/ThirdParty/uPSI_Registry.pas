@@ -75,6 +75,15 @@ end;
 (*----------------------------------------------------------------------------*)
 procedure SIRegister_TRegistry(CL: TPSPascalCompiler);
 begin
+  CL.AddTypeS('HKEY', 'longint');
+  CL.AddConstantN('HKEY_CLASSES_ROOT',     'HKEY').Value.ts64 := HKEY_CLASSES_ROOT;
+  CL.AddConstantN('HKEY_CURRENT_USER',     'HKEY').Value.ts64 := HKEY_CURRENT_USER;
+  CL.AddConstantN('HKEY_LOCAL_MACHINE',    'HKEY').Value.ts64 := HKEY_LOCAL_MACHINE;
+  CL.AddConstantN('HKEY_USERS',            'HKEY').Value.ts64 := HKEY_USERS;
+  CL.AddConstantN('HKEY_PERFORMANCE_DATA', 'HKEY').Value.ts64 := HKEY_PERFORMANCE_DATA;
+  CL.AddConstantN('HKEY_CURRENT_CONFIG',   'HKEY').Value.ts64 := HKEY_CURRENT_CONFIG;
+  CL.AddConstantN('HKEY_DYN_DATA',         'HKEY').Value.ts64 := HKEY_DYN_DATA;
+
   //with RegClassS(CL,'TObject', 'TRegistry') do
   with CL.AddClassN(CL.FindClass('TObject'),'TRegistry') do
   begin
