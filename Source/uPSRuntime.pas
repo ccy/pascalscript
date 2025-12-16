@@ -13210,16 +13210,20 @@ begin
     try
       for i := 0 to High(Par)  do
       begin
-        if (PVarData(PPSVariantIFC(@Par[High(Par)-i]).Dta).VType = varString) then
+        var PVar := {$ifndef PS_USECLASSICINVOKE}PPSVariantIFC(@Par[High(Par)-i]).Dta;
+                    {$else}@Par[High(Par)-i]
+                    {$endif}
+                    ;
+        if PVarData(PVar).VType = varString then
         begin
           DispParam.rgvarg[i].vt := VT_BSTR;
-          DispParam.rgvarg[i].bstrVal := StringToOleStr(Variant(PVarData(PPSVariantIFC(@Par[High(Par)-i]).Dta)^));
+          DispParam.rgvarg[i].bstrVal := StringToOleStr(Variant(PVar^));
           WSFreeList.Add(DispParam.rgvarg[i].bstrVal);
         {$IFDEF UNICODE}
-        end else if (PVarData(PPSVariantIFC(@Par[High(Par)-i]).Dta).VType = varOleStr) or (PVarData(PPSVariantIFC(@Par[High(Par)-i]).Dta).VType = varUString) then
+        end else if (PVarData(PVar).VType = varOleStr) or (PVarData(PVar).VType = varUString) then
         begin
           DispParam.rgvarg[i].vt := VT_BSTR;
-          DispParam.rgvarg[i].bstrVal := StringToOleStr(Variant(PVarData(PPSVariantIFC(@Par[High(Par)-i]).Dta)^));
+          DispParam.rgvarg[i].bstrVal := StringToOleStr(Variant(PVar^));
           WSFreeList.Add(DispParam.rgvarg[i].bstrVal);
         {$ENDIF}
         end else
@@ -13240,7 +13244,7 @@ begin
           {$ENDIF}
            (DispParam.rgvarg[i].pvarVal)^ := Par[High(Par)-i];
           *)
-          Move(PVarData(PPSVariantIFC(@Par[High(Par)-i]).Dta)^,Pointer(DispParam.rgvarg[i].pvarVal)^,
+          Move(PVar^,Pointer(DispParam.rgvarg[i].pvarVal)^,
            Sizeof({$IFDEF DELPHI4UP}OleVariant{$ELSE}Variant{$ENDIF}));
 
         end;
