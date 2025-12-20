@@ -483,6 +483,13 @@ _XMM0: Double;
     end;
   end;
   {$ENDIF}
+
+  type
+    TMethodCallData = record
+      AType: Byte;
+      Data: TMethod;
+    end;
+    PMethodCallData=^TMethodCallData;
   function GetPtr(fVar: PPSVariantIFC): Boolean;
   var
     varPtr: Pointer;
@@ -620,6 +627,15 @@ _XMM0: Double;
             TMethod(p^) := MKMethod(Self, Longint(FVar.Dta^));
             StoreStack(p^, Pointersize2);
             FreeMem(p);
+            //GetMem(p, sizeof(TMethodCallData));
+            p := New(PMethodCallData);
+            TMethodCallData(p^).AType:=255;
+            CallData.Add(p);
+            TMethodCallData(p^).Data.Code:=nil;
+            //TMethodCallData(p^).Data.Data:=nil;
+            TMethodCallData(p^).Data := MKMethod(Self, Longint(fVar.Dta^)); // It requires the implementation of "Handled"
+            StoreReg(IPointer(@TMethodCallData(p^).Data));
+            // [#velter#].
           end;
 
         bts64:
@@ -782,6 +798,10 @@ begin
       pp := CallData[i];
       case pp^ of
         0: DestroyOpenArray(Self, Pointer(pp));
+        255: begin // [#velter#]: https://github.com/velter/pascalscript/commit/1c598a1406390e2e762368b07a185ecb187182a7
+            //FreeMem(Pointer(pp), sizeof(TMethodCallData)); // release TMethodCallData
+            Dispose(PMethodCallData(pp));
+        end;
       end;
     end;
     CallData.Free;
