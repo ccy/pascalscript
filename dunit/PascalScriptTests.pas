@@ -28,12 +28,15 @@ type
     procedure Test_Event;
     procedure Test_Registry;
     procedure Test_277;
+    procedure Script_CreateOleVariantArray;
+    procedure Script_FindKeyByRef;
+    procedure SQLAcc_FindKeyByRef;
   end;
 
 implementation
 
 uses
-  Winapi.ActiveX,
+  Winapi.ActiveX, System.Win.ComObj,
   uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSI_Registry, uPSR_classes,
   uPSR_comobj;
 
@@ -238,6 +241,70 @@ begin
     end;
     ''')
   );
+end;
+
+procedure TPascalScriptTests.Script_CreateOleVariantArray;
+begin
+  {$ifndef PS_USECLASSICINVOKE}Check(False, 'Define PS_USECLASSICINVOKE for Win32 build');{$endif}
+
+  CheckEquals(
+    'Bingo'
+  , Execute<string>('''
+    function Execute: string;
+    var o, a: Variant;
+    begin
+      o := CreateOleObject('SQLAcc.BizApp');
+      a := o.CreateOleVariantArray(1);
+      a.SetItem(0, 'hello');
+      a.SetItem(1, '1234');
+      a.AsOleVariant;
+      Result := 'Bingo';
+    end;
+    ''')
+  );
+end;
+
+procedure TPascalScriptTests.Script_FindKeyByRef;
+begin
+  {$ifndef PS_USECLASSICINVOKE}Check(False, 'Define PS_USECLASSICINVOKE for Win32 build');{$endif}
+
+  CheckEquals(
+    '1'
+  , Execute<string>('''
+    function Execute: string;
+    var o, A, B, D, K1, K2: Variant;
+    begin
+      o := CreateOleObject('SQLAcc.BizApp');
+      B := o.BizObjects.Find('AR_IV');
+      D := B.DataSets.Find('MainDataSet');
+
+      K1 := B.FindKeyByRef('DocNo;Code', ['IV-00001', '300-T0001']);
+
+      A := o.CreateOleVariantArray(1);
+      A.SetItem(0, 'IV-00001');
+      A.SetItem(1, '300-T0001');
+      K2 := B.FindKeyByRef('DocNo;Code', A.AsOleVariant);
+
+      if K1 = K2 then Result := K2;
+    end;
+    ''')
+  );
+end;
+
+procedure TPascalScriptTests.SQLAcc_FindKeyByRef;
+begin
+  var o: OleVariant;
+
+  o := CreateOleObject('SQLAcc.BizApp');
+  var B := o.BizObjects.Find('AR_IV');
+  var D := B.DataSets.Find('MainDataSet');
+
+  var a := o.CreateOleVariantArray(1);
+  a.SetItem(0, 'IV-00001');
+  a.SetItem(1, '300-T0001');
+
+  var K := B.FindKeyByRef('DocNo;Code', a.AsOleVariant);
+  CheckEquals(1, K);
 end;
 
 initialization
