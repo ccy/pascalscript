@@ -1681,7 +1681,18 @@ begin
   end;
 end;
 
+function VarIsValid(const Value: TVarData): Boolean; overload; {$ifdef INLINE_SUPPORT} inline; {$endif}
+begin
+  if Value.VType <> varVariant + varArray then
+    Result := True
+  else
+    Result := Value.VArray.ElementSize > 0;
+end;
 
+function VarIsValid(const Value: Variant): Boolean; overload; {$ifdef INLINE_SUPPORT} inline; {$endif}
+begin
+  Result := VarIsValid(TVarData(Value));
+end;
 
 function TIFErrorToString(x: TPSError; const Param: tbtString): tbtString;
 begin
@@ -1889,7 +1900,8 @@ begin
     btVariant:
     begin
       try
-        Finalize(Variant(p^));
+         if VarIsValid(Variant(p^)) then
+           Finalize(Variant(p^));
       except
       end;
     end;
