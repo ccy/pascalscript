@@ -22,6 +22,7 @@ type
     procedure TearDown; override;
   published
     procedure Test_cd5664c2;
+    procedure Test_179;
     procedure Test_Format;
     procedure Test_CreateOleObject;
     procedure Test_BadVariableType;
@@ -65,6 +66,7 @@ end;
 procedure TPascalScriptTests.OnCompImport(Sender: TObject;
   x: TPSPascalCompiler);
 begin
+  x.AddDelphiFunction('procedure Abort');
   x.AddDelphiFunction('function Format(const Format: string; const Args: array of const): string');
   SIRegister_Classes(x, True);
   SIRegister_ComObj(x);
@@ -73,6 +75,7 @@ end;
 procedure TPascalScriptTests.OnExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
+  se.RegisterDelphiFunction(@Abort, 'Abort', cdRegister);
   se.RegisterDelphiFunction(@Format, 'Format', cdRegister);
   RIRegister_Classes(x, True);
   RIRegister_ComObj(se);
@@ -102,6 +105,20 @@ begin
       end;
     end;
   ''')
+  );
+end;
+
+procedure TPascalScriptTests.Test_179;
+begin
+  StartExpectingException(EAbort);
+  CheckEquals(
+    ''
+  , Execute<string>('''
+    function Execute: string;
+    begin
+      Abort;
+    end;
+    ''')
   );
 end;
 
