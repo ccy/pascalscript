@@ -27,6 +27,7 @@ type
     procedure Test_CreateOleObject;
     procedure Test_BadVariableType;
     procedure Test_Event;
+    procedure Test_Event_Abort;
     procedure Test_277;
     procedure Script_CreateOleVariantArray;
     procedure Script_FindKeyByRef;
@@ -167,6 +168,35 @@ begin
         s.OnChange := @OnChange;
         s.Add('test');
         Result := Response;
+      finally
+        s.Free;
+      end;
+    end;
+    ''')
+  );
+end;
+
+procedure TPascalScriptTests.Test_Event_Abort;
+begin
+  StartExpectingException(EAbort);
+
+  CheckEquals(
+    ''
+  , Execute<string>('''
+    var Response: string;
+
+    procedure OnChange(Sender: TObject);
+    begin
+      Abort;
+    end;
+
+    function Execute: string;
+    var s: TStringList;
+    begin
+      s := TStringList.Create;
+      try
+        s.OnChange := @OnChange;
+        s.Add('test');
       finally
         s.Free;
       end;
