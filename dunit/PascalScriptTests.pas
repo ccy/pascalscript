@@ -9,6 +9,7 @@ uses
 type
   TPascalScriptTests = class(TTestCase)
   type
+    TPSPluginClass = class of TPSPlugin;
     TExecute<T> = function: T of object;
   private
     FScripter: TPSScript;
@@ -23,18 +24,23 @@ type
     procedure Test_Format;
     procedure Test_CreateOleObject;
     procedure Test_BadVariableType;
+    procedure Test_Event;
   end;
 
 implementation
 
 uses
   Winapi.ActiveX,
-  uPSC_comobj, uPSR_comobj;
+  uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSR_classes, uPSR_comobj;
 
 procedure TPascalScriptTests.SetUp;
 begin
   inherited;
   FScripter := TPSScript.Create(nil);
+
+  for var c in [TPSImport_Classes] do
+    (FScripter.Plugins.Add as TPSPluginItem).Plugin := TPSPluginClass(c).Create(FScripter);
+
   FScripter.OnCompImport := OnCompImport;
   FScripter.OnExecImport := OnExecImport;
 end;
@@ -59,6 +65,7 @@ procedure TPascalScriptTests.OnCompImport(Sender: TObject;
   x: TPSPascalCompiler);
 begin
   x.AddDelphiFunction('function Format(const Format: string; const Args: array of const): string');
+  SIRegister_Classes(x, True);
   SIRegister_ComObj(x);
 end;
 
@@ -66,6 +73,7 @@ procedure TPascalScriptTests.OnExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
   se.RegisterDelphiFunction(@Format, 'Format', cdRegister);
+  RIRegister_Classes(x, True);
   RIRegister_ComObj(se);
 end;
 
@@ -94,6 +102,36 @@ begin
   finally
     CoUninitialize;
   end;
+end;
+
+procedure TPascalScriptTests.Test_Event;
+begin
+  {$ifndef PS_USECLASSICINVOKE}Check(false, 'Define PS_USECLASSICINVOKE for Win32 build');{$endif}
+
+  CheckEquals(
+    'Invoke OnChange'
+  , Execute<string>('''
+    var Response: string;
+
+    procedure OnChange(Sender: TObject);
+    begin
+      Response := 'Invoke OnChange';
+    end;
+
+    function Execute: string;
+    var s: TStringList;
+    begin
+      s := TStringList.Create;
+      try
+        s.OnChange := @OnChange;
+        s.Add('test');
+        Result := Response;
+      finally
+        s.Free;
+      end;
+    end;
+    ''')
+  );
 end;
 
 procedure TPascalScriptTests.Test_Format;
