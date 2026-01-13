@@ -25,6 +25,7 @@ type
     procedure Test_Format;
     procedure Test_CreateOleObject;
     procedure Test_BadVariableType;
+    procedure Test_Event;
   end;
 
 implementation
@@ -123,6 +124,34 @@ begin
   finally
     CoUninitialize;
   end;
+end;
+
+procedure TPascalScriptTests.Test_Event;
+begin
+  CheckEquals(
+    'Invoke OnChange'
+  , Execute<string>('''
+    var Response: string;
+
+    procedure OnChange(Sender: TObject);
+    begin
+      Response := 'Invoke OnChange';
+    end;
+
+    function Execute: string;
+    var s: TStringList;
+    begin
+      s := TStringList.Create;
+      try
+        s.OnChange := @OnChange;
+        s.Add('test');
+        Result := Response;
+      finally
+        s.Free;
+      end;
+    end;
+    ''')
+  );
 end;
 
 procedure TPascalScriptTests.Test_Format;
