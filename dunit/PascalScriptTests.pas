@@ -31,6 +31,7 @@ type
     procedure Script_CreateOleVariantArray;
     procedure Script_FindKeyByRef;
     procedure SQLAcc_FindKeyByRef;
+    procedure Test_SafeCall;
   end;
 
 implementation
@@ -38,6 +39,11 @@ implementation
 uses
   Winapi.ActiveX, System.Win.ComObj,
   uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSR_classes, uPSR_comobj;
+
+function SafeCall_Sum(a, b: Integer): Integer; safecall;
+begin
+  Result := a + b;
+end;
 
 procedure TPascalScriptTests.SetUp;
 begin
@@ -72,6 +78,7 @@ procedure TPascalScriptTests.OnCompImport(Sender: TObject;
 begin
   x.AddDelphiFunction('procedure Abort');
   x.AddDelphiFunction('function Format(const Format: string; const Args: array of const): string');
+  x.AddDelphiFunction('function SafeCall_Sum(a, b: Integer): Integer); safecall');
   SIRegister_Classes(x, True);
   SIRegister_ComObj(x);
 end;
@@ -81,6 +88,7 @@ procedure TPascalScriptTests.OnExecImport(Sender: TObject; se: TPSExec;
 begin
   se.RegisterDelphiFunction(@Abort, 'Abort', cdRegister);
   se.RegisterDelphiFunction(@Format, 'Format', cdRegister);
+  se.RegisterDelphiFunction(@SafeCall_Sum, 'SafeCall_Sum', cdSafeCall);
   RIRegister_Classes(x, True);
   RIRegister_ComObj(se);
 end;
@@ -308,6 +316,19 @@ begin
 
   var K := B.FindKeyByRef('DocNo;Code', a.AsOleVariant);
   CheckEquals(1, K);
+end;
+
+procedure TPascalScriptTests.Test_SafeCall;
+begin
+  CheckEquals(
+    '30'
+  , Execute<string>('''
+    function Execute: string;
+    begin
+      Result := IntToStr(SafeCall_Sum(10, 20));
+    end;
+    ''')
+  );
 end;
 
 initialization
