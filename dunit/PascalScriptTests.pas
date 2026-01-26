@@ -33,14 +33,15 @@ type
     procedure SQLAcc_FindKeyByRef;
     procedure Test_SafeCall;
     procedure Test_Registry;
+    procedure Test_Tag;
   end;
 
 implementation
 
 uses
   Winapi.ActiveX, System.Win.ComObj,
-  uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSI_Registry, uPSR_classes,
-  uPSR_comobj;
+  uPSC_classes, uPSC_comobj, uPSC_controls, uPSC_stdctrls, uPSComponent_Default,
+  uPSI_Registry, uPSR_classes, uPSR_comobj, uPSR_controls, uPSR_stdctrls;
 
 function SafeCall_Sum(a, b: Integer): Integer; safecall;
 begin
@@ -83,6 +84,8 @@ begin
   x.AddDelphiFunction('function SafeCall_Sum(a, b: Integer): Integer); safecall');
   SIRegister_Classes(x, True);
   SIRegister_ComObj(x);
+  SIRegister_Controls(x);
+  SIRegister_StdCtrls(x);
 end;
 
 procedure TPascalScriptTests.OnExecImport(Sender: TObject; se: TPSExec;
@@ -93,6 +96,8 @@ begin
   se.RegisterDelphiFunction(@SafeCall_Sum, 'SafeCall_Sum', cdSafeCall);
   RIRegister_Classes(x, True);
   RIRegister_ComObj(se);
+  RIRegister_Controls(x);
+  RIRegister_StdCtrls(x);
 end;
 
 procedure TPascalScriptTests.TearDown;
@@ -160,6 +165,28 @@ begin
         Result := Response;
       finally
         s.Free;
+      end;
+    end;
+    ''')
+  );
+end;
+
+procedure TPascalScriptTests.Test_Tag;
+begin
+  CheckEquals(
+    '100'
+  , Execute<string>('''
+    var Response: string;
+
+    function Execute: string;
+    var B: TButton;
+    begin
+      B := TButton.Create(nil);
+      try
+        B.Tag := 100;
+        Result := IntToStr(B.Tag);
+      finally
+        B.Free;
       end;
     end;
     ''')
