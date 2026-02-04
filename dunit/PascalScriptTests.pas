@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, TestFramework,
-  uPSCompiler, uPSComponent, uPSRuntime;
+  uPSCompiler, uPSComponent, uPSRuntime, uPSUtils;
 
 type
   TPascalScriptTests = class(TTestCase)
@@ -22,12 +22,15 @@ type
     procedure TearDown; override;
   published
     procedure Test_cd5664c2;
+    procedure Test_Format;
+    procedure Test_CreateOleObject;
   end;
 
 implementation
 
 uses
-  uPSC_classes, uPSComponent_Default, uPSR_classes;
+  Winapi.ActiveX,
+  uPSC_classes, uPSC_comobj, uPSComponent_Default, uPSR_classes, uPSR_comobj;
 
 procedure TPascalScriptTests.SetUp;
 begin
@@ -60,13 +63,17 @@ end;
 procedure TPascalScriptTests.OnCompImport(Sender: TObject;
   x: TPSPascalCompiler);
 begin
+  x.AddDelphiFunction('function Format(const Format: string; const Args: array of const): string');
   SIRegister_Classes(x, True);
+  SIRegister_ComObj(x);
 end;
 
 procedure TPascalScriptTests.OnExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
+  se.RegisterDelphiFunction(@Format, 'Format', cdRegister);
   RIRegister_Classes(x, True);
+  RIRegister_ComObj(se);
 end;
 
 procedure TPascalScriptTests.TearDown;
@@ -93,6 +100,40 @@ begin
       end;
     end;
   ''')
+  );
+end;
+
+procedure TPascalScriptTests.Test_CreateOleObject;
+begin
+  CoInitialize(nil);
+  try
+    CheckEquals(
+      'True'
+    , Execute<string>('''
+      function Execute: string;
+      var o: Variant;
+      begin
+        o := CreateOleObject('Schedule.Service.1');
+        o.Connect('');
+        Result := o.Connected;
+      end;
+      ''')
+      );
+  finally
+    CoUninitialize;
+  end;
+end;
+
+procedure TPascalScriptTests.Test_Format;
+begin
+  CheckEquals(
+    'Print Hello World 123456'
+  , Execute<string>('''
+    function Execute: string;
+    begin
+      Result := Format('Print %s %d', ['Hello World', 123456]);
+    end;
+    ''')
   );
 end;
 
