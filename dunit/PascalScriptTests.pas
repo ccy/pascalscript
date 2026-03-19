@@ -35,14 +35,16 @@ type
     procedure Test_SafeCall;
     procedure Test_Registry;
     procedure Test_Tag;
+    procedure Test_DataSet_Events;
   end;
 
 implementation
 
 uses
   Winapi.ActiveX, System.Win.ComObj,
-  uPSC_classes, uPSC_comobj, uPSC_controls, uPSC_stdctrls, uPSComponent_Default,
-  uPSI_Registry, uPSR_classes, uPSR_comobj, uPSR_controls, uPSR_stdctrls;
+  uPSC_DB, uPSC_classes, uPSC_comobj, uPSC_controls, uPSC_stdctrls,
+  uPSComponent_Default, uPSI_Registry, uPSR_DB, uPSR_classes, uPSR_comobj,
+  uPSR_controls, uPSR_stdctrls;
 
 function SafeCall_Sum(a, b: Integer): Integer; safecall;
 begin
@@ -87,6 +89,7 @@ begin
   SIRegister_ComObj(x);
   SIRegister_Controls(x);
   SIRegister_StdCtrls(x);
+  SIRegister_DB(x);
 end;
 
 procedure TPascalScriptTests.OnExecImport(Sender: TObject; se: TPSExec;
@@ -99,6 +102,7 @@ begin
   RIRegister_ComObj(se);
   RIRegister_Controls(x);
   RIRegister_StdCtrls(x);
+  RIRegister_DB(x);
 end;
 
 procedure TPascalScriptTests.TearDown;
@@ -161,6 +165,44 @@ begin
   finally
     CoUninitialize;
   end;
+end;
+
+procedure TPascalScriptTests.Test_DataSet_Events;
+begin
+  CheckEquals(
+    1
+  , Execute<Integer>('''
+    function Execute: Integer;
+    var B: TDataSet;
+    begin
+      Result := 0;
+      B := TDataSet.Create(nil);
+      try
+        B.BeforeOpen;
+        B.AfterOpen;
+        B.BeforeClose;
+        B.AfterClose;
+        B.BeforeInsert;
+        B.AfterInsert;
+        B.BeforeEdit;
+        B.AfterEdit;
+        B.BeforePost;
+        B.AfterPost;
+        B.BeforeCancel;
+        B.AfterCancel;
+        B.BeforeDelete;
+        B.AfterDelete;
+        B.BeforeScroll;
+        B.AfterScroll;
+        B.AfterRefresh;
+        B.BeforeRefresh;
+        Result := 1;
+      finally
+        B.Free;
+      end;
+    end;
+  ''')
+  );
 end;
 
 procedure TPascalScriptTests.Test_Event;
